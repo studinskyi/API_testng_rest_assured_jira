@@ -1,0 +1,1 @@
+# lr10_api_testng_rest_assured_studinskyi
