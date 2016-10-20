@@ -17,8 +17,8 @@ public class RequestSender {
     public static Response response = null;
 
     public RequestSender() {
-        RestAssured.baseURI = "https://forapitest.atlassian.net";
-        //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+        //RestAssured.baseURI = "https://forapitest.atlassian.net";
+        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
     }
 
     public void authenticate() {

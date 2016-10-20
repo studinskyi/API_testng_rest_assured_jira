@@ -2,6 +2,9 @@ package fixtures;
 
 import org.json.simple.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class JiraJSONFixture {
     public String generateJSONForLogin() {
         JSONObject credentials = new JSONObject();
@@ -14,7 +17,7 @@ public class JiraJSONFixture {
         JSONObject issue = new JSONObject();
 
         JSONObject fields = new JSONObject();
-        fields.put("summary", "rest_test");
+        fields.put("summary", "api_rest_test_lr10 " + getCurrenDateTimeString());
         JSONObject project = new JSONObject();
 
         JSONObject issuetype = new JSONObject();
@@ -28,10 +31,18 @@ public class JiraJSONFixture {
         fields.put("reporter", reporter);
 
         project.put("id", "10315");
-        issuetype.put("id", "10004");
+        issuetype.put("id", "10004"); // 10004 - Bug (баг) , 10003 - Task (задача), 10002 -  Story (история)
         assignee.put("name", "studinskyi");
         reporter.put("name", "studinskyi");
 
         return issue.toJSONString();
+    }
+
+    public String getCurrenDateTimeString() {
+        // для возможности последующего просмотра командой history
+        Date d = new Date();
+        SimpleDateFormat formatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+        //FileManager.executedOperations.put(formatDate.format(d), FileManager.currentCommand);
+        return formatDate.format(d);
     }
 }
