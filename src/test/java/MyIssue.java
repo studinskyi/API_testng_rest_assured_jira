@@ -38,7 +38,7 @@ public class MyIssue {
     }
 
     @Test
-    public void createIssuePositive201(){
+    public void createIssuePositive_statusCode201(){
         //RestAssured.baseURI = "https://forapitest.atlassian.net";
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
         String body1 = jiraJSONFixture.generateJSONForSampleIssue();
@@ -66,7 +66,7 @@ public class MyIssue {
     public void deleteIssueOnly_statusCode204() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
         //        System.out.println(keyIssue + " first");
-        //        createIssuePositive201();
+        //        createIssuePositive_statusCode201();
         //        System.out.println(keyIssue + " second");
 
         //keyLocal = "QAAUT-673";
@@ -88,7 +88,7 @@ public class MyIssue {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
         System.out.println(keyIssue + " key Issue before test");
 
-        createIssuePositive201();
+        createIssuePositive_statusCode201();
         System.out.println(keyIssue + " key Issue created test");
         //        //System.out.println("key=" + keyIssue);
 
@@ -142,7 +142,7 @@ public class MyIssue {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
         System.out.println(keyIssue + " first");
 
-        createIssuePositive201();
+        createIssuePositive_statusCode201();
 
         System.out.println(keyIssue + " second");
 
