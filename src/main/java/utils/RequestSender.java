@@ -11,10 +11,10 @@ import static com.jayway.restassured.RestAssured.given;
 
 public class RequestSender {
 
-    public static String JSESSIONID = null;
+    public String JSESSIONID = null;
     public final static ContentType CONTENT_TYPE = ContentType.JSON;
-    public static RequestSpecification requestSpecification = null;
-    public static Response response = null;
+    public RequestSpecification requestSpecification = null;
+    public Response response = null;
 
     public RequestSender() {
         //RestAssured.baseURI = "https://forapitest.atlassian.net";
@@ -30,18 +30,20 @@ public class RequestSender {
         createRequest(credentials)
                 .post(ApiUrls.LOGIN.getUri());
 
-        this.JSESSIONID = response.then().extract().path("session.value");
+        this.JSESSIONID = this.response.then().extract().path("session.value");
     }
 
     public RequestSender createRequest(String body) {
         this.createRequestSpecification()
                 .addHeader("Content-Type", CONTENT_TYPE.toString())
-                .addHeader("Cookie", "JSESSIONID=" + RequestSender.JSESSIONID)
+                //.addHeader("Cookie", "JSESSIONID=" + RequestSender.JSESSIONID)
+                .addHeader("Cookie", "JSESSIONID=" + this.JSESSIONID)
                 .addBody(body);
         return this;
     }
 
     public RequestSender createRequestSpecification() {
+        // обращение к объекту RestAssured, чтобы можно было начать заполнять параметры запроса
         requestSpecification = given().
                 when();
         return this;
@@ -59,11 +61,11 @@ public class RequestSender {
     }
 
     public RequestSender post(String uri) {
-        response = requestSpecification.post(uri);
+        this.response = requestSpecification.post(uri);
         return this;
     }
 
     public String extractResponseByPath(String path){
-        return response.then().extract().path(path);
+        return this.response.then().extract().path(path);
     }
 }

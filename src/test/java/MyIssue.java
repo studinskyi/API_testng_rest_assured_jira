@@ -1,15 +1,19 @@
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import fixtures.JiraJSONFixture;
 import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import utils.IssueAPI;
 import utils.RequestSender;
 
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static io.restassured.path.json.JsonPath.from;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -17,6 +21,8 @@ public class MyIssue {
 
     String sessionID = "";
     String keyIssue = "";
+    IssueAPI issueAPI = null;
+
     Response response;
 
     List<String> stringList = null;
@@ -26,41 +32,76 @@ public class MyIssue {
     //@Test
     public void login(){
         //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        String loginBody = jiraJSONFixture.generateJSONForLogin();
-        RequestSender requestSender = new RequestSender();
-        requestSender.authenticate();
-
-        sessionID = requestSender.extractResponseByPath("session.value");
-//        assertTrue(response.getStatusCode() == 200);
-//        assertTrue(response.path("session") != null);
-        //assertNotNull(response.path("session"));
+        //String loginBody = jiraJSONFixture.generateJSONForLogin();
+        //RequestSender requestSender = new RequestSender();
+        //requestSender.authenticate();
+        issueAPI = new IssueAPI();
+        issueAPI.loginAPI();
+        sessionID = issueAPI.getRequestSender().extractResponseByPath("session.value");
+        //        assertTrue(response.getStatusCode() == 200);
+        //        assertTrue(response.path("session") != null);
         assertNotNull(sessionID);
     }
+    //    public void login_old(){
+    //        //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //        //String loginBody = jiraJSONFixture.generateJSONForLogin();
+    //        RequestSender requestSender = new RequestSender();
+    //        requestSender.authenticate();
+    //
+    //        sessionID = requestSender.extractResponseByPath("session.value");
+    //        //        assertTrue(response.getStatusCode() == 200);
+    //        //        assertTrue(response.path("session") != null);
+    //        //assertNotNull(response.path("session"));
+    //        assertNotNull(sessionID);
+    //    }
 
     @Test
     public void createIssuePositive_statusCode201(){
-        //RestAssured.baseURI = "https://forapitest.atlassian.net";
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        String body1 = jiraJSONFixture.generateJSONForSampleIssue();
+        String issueId = null;
 
-        Response response = given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                body(body1).
-                when().
-                post("/rest/api/2/issue");
+        // подготовка JSONO текста тела запроса body
+        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
+        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
 
-        keyIssue = response.getBody().jsonPath().get("key");
+        // создание задачи через выполнение метода объекта issueAPI
+        issueAPI.createIssue(bodyIssue);
 
-        Assert.assertEquals(response.getStatusCode(),201);
-        //assertTrue(response.getStatusCode() == 201);
-        //        assertTrue(response.getBody().jsonPath().get("key").toString().contains("TES-"));
-        //        assertTrue(response.getBody().jsonPath().get("self").toString().contains("https://forapitest.atlassian.net"));
-        assertTrue(response.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
-        assertTrue(response.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
+        // проверка ответа от сервера
+        Response responseLocal = issueAPI.getRequestSender().response;
+        assertEquals(responseLocal.statusCode(), 201);
+        AssertJUnit.assertTrue(responseLocal.contentType().contains(ContentType.JSON.toString()));
 
+        keyIssue = responseLocal.getBody().jsonPath().get("key");
 
+        // проверка ответа от сервера
+        Assert.assertEquals(responseLocal.getStatusCode(),201);
+        //assertEquals(responseLocal.statusCode(), 201);
+        AssertJUnit.assertTrue(responseLocal.contentType().contains(ContentType.JSON.toString()));
+        assertTrue(responseLocal.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
+        assertTrue(responseLocal.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
     }
+    //    public void createIssuePositive_statusCode201_old(){
+    //        //RestAssured.baseURI = "https://forapitest.atlassian.net";
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //        String body1 = jiraJSONFixture.generateJSONForSampleIssue();
+    //
+    //        Response response = given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID=" + sessionID).
+    //                body(body1).
+    //                when().
+    //                post("/rest/api/2/issue");
+    //
+    //        keyIssue = response.getBody().jsonPath().get("key");
+    //
+    //        Assert.assertEquals(response.getStatusCode(),201);
+    //        //assertTrue(response.getStatusCode() == 201);
+    //        //        assertTrue(response.getBody().jsonPath().get("key").toString().contains("TES-"));
+    //        //        assertTrue(response.getBody().jsonPath().get("self").toString().contains("https://forapitest.atlassian.net"));
+    //        assertTrue(response.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
+    //        assertTrue(response.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
+    //    }
+
 
     @Test
     public void deleteIssueOnly_statusCode204() {
@@ -69,7 +110,7 @@ public class MyIssue {
         //        createIssuePositive_statusCode201();
         //        System.out.println(keyIssue + " second");
 
-        //keyLocal = "QAAUT-673";
+        //keyIssue = "QAAUT-672";
         //keyIssue = keyLocal;
 
         System.out.println("key=" + keyIssue);
@@ -103,6 +144,7 @@ public class MyIssue {
         //                then().
         //                statusCode(204);
     }
+
     @Test
     public void createIssueNegative400(){
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
