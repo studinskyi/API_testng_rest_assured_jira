@@ -59,26 +59,26 @@ public class MyIssue {
     public void createIssuePositive_statusCode201(){
         String issueId = null;
 
-        // подготовка JSONO текста тела запроса body
+        // подготовка JSON текста тела запроса body
         JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
         String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
 
         // создание задачи через выполнение метода объекта issueAPI
         issueAPI.createIssue(bodyIssue);
 
-        // проверка ответа от сервера
-        Response responseLocal = issueAPI.getRequestSender().response;
-        assertEquals(responseLocal.statusCode(), 201);
-        AssertJUnit.assertTrue(responseLocal.contentType().contains(ContentType.JSON.toString()));
+        // проверка ответа от сервера после создания задачи
+        Response responseСreate = issueAPI.getRequestSender().response;
+        assertEquals(responseСreate.statusCode(), 201);
+        AssertJUnit.assertTrue(responseСreate.contentType().contains(ContentType.JSON.toString()));
 
-        keyIssue = responseLocal.getBody().jsonPath().get("key");
+        keyIssue = responseСreate.getBody().jsonPath().get("key");
 
         // проверка ответа от сервера
-        Assert.assertEquals(responseLocal.getStatusCode(),201);
-        //assertEquals(responseLocal.statusCode(), 201);
-        AssertJUnit.assertTrue(responseLocal.contentType().contains(ContentType.JSON.toString()));
-        assertTrue(responseLocal.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
-        assertTrue(responseLocal.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
+        Assert.assertEquals(responseСreate.getStatusCode(),201);
+        //assertEquals(responseСreate.statusCode(), 201);
+        AssertJUnit.assertTrue(responseСreate.contentType().contains(ContentType.JSON.toString()));
+        assertTrue(responseСreate.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
+        assertTrue(responseСreate.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
     }
     //    public void createIssuePositive_statusCode201_old(){
     //        //RestAssured.baseURI = "https://forapitest.atlassian.net";
@@ -105,23 +105,47 @@ public class MyIssue {
 
     @Test
     public void deleteIssueOnly_statusCode204() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        //        System.out.println(keyIssue + " first");
-        //        createIssuePositive_statusCode201();
-        //        System.out.println(keyIssue + " second");
+        keyIssue = "QAAUT-1019";
+        System.out.println("keyIssue = " + keyIssue);
 
-        //keyIssue = "QAAUT-672";
-        //keyIssue = keyLocal;
+        // подготовка JSON текста тела запроса body
+        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
+        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
 
-        System.out.println("key=" + keyIssue);
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                when().
-                delete("/rest/api/2/issue/" + keyIssue).
-                then().
-                statusCode(204);
+        // удаление задачи через выполнение метода объекта issueAPI
+        issueAPI.deleteIssue(bodyIssue,keyIssue);
+
+        // проверка ответа от сервера после создания задачи
+        Response responseDelete = issueAPI.getRequestSender().response;
+        assertEquals(responseDelete.statusCode(), 204);
+        AssertJUnit.assertTrue(responseDelete.contentType().contains(ContentType.JSON.toString()));
+
+        //        given().
+        //                contentType("application/json").
+        //                cookie("JSESSIONID=" + sessionID).
+        //                when().
+        //                delete("/rest/api/2/issue/" + keyIssue).
+        //                then().
+        //                statusCode(204);
     }
+    //    public void deleteIssueOnly_statusCode204_old() {
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //        //        System.out.println(keyIssue + " first");
+    //        //        createIssuePositive_statusCode201();
+    //        //        System.out.println(keyIssue + " second");
+    //
+    //        //keyIssue = "QAAUT-672";
+    //        //keyIssue = keyLocal;
+    //
+    //        System.out.println("key=" + keyIssue);
+    //        given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID=" + sessionID).
+    //                when().
+    //                delete("/rest/api/2/issue/" + keyIssue).
+    //                then().
+    //                statusCode(204);
+    //    }
 
 
     @Test

@@ -21,9 +21,14 @@ public class IssueAPI {
 
     }
 
-    //    public void deleteIssue(String issueId) {
+    public void deleteIssue(String body, String keyIssue) {
+        requestSender
+                .createRequest(body)
+                .delete(ApiUrls.DELETE.getUri(keyIssue));
+    }
+    //    public void deleteIssue_old(String issueId) {
     //        requestSender
-    //                .createRequest(issueId)
+    //                .createRequest()
     //                .delete(ApiUrls.ISSUE.getUri(issueId));
     //
     //    }

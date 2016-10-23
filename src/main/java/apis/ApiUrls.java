@@ -3,7 +3,8 @@ package apis;
 public enum ApiUrls {
 
     LOGIN("/rest/auth/1/session"),
-    ISSUE("/rest/api/2/issue");
+    ISSUE("/rest/api/2/issue"),
+    DELETE("/rest/api/2/issue");
 
     private String uri;
 

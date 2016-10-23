@@ -65,6 +65,11 @@ public class RequestSender {
         return this;
     }
 
+    public RequestSender delete(String uri) {
+        this.response = requestSpecification.delete(uri);
+        return this;
+    }
+
     public String extractResponseByPath(String path){
         return this.response.then().extract().path(path);
     }
