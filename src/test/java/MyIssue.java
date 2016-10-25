@@ -21,26 +21,32 @@ public class MyIssue {
 
     String sessionID = "";
     String keyIssue = "";
+    String issueId = "";
     IssueAPI issueAPI = null;
 
-    Response response;
+    //Response response;
 
     List<String> stringList = null;
     JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
 
-    @BeforeTest
-    //@Test
+    @Test(groups = {"Issue", "Search", "Comment"})
+    //@BeforeTest(groups = {"Issue", "Search", "Comment"})
     public void login(){
-        //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        //String loginBody = jiraJSONFixture.generateJSONForLogin();
-        //RequestSender requestSender = new RequestSender();
-        //requestSender.authenticate();
         issueAPI = new IssueAPI();
         issueAPI.loginAPI();
         sessionID = issueAPI.getRequestSender().extractResponseByPath("session.value");
-        //        assertTrue(response.getStatusCode() == 200);
+        assertTrue(issueAPI.getRequestSender().response.getStatusCode() == 200);
         //        assertTrue(response.path("session") != null);
         assertNotNull(sessionID);
+
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("Log in - thread id: " + Thread.currentThread().getId());
     }
     //    public void login_old(){
     //        //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
@@ -55,9 +61,9 @@ public class MyIssue {
     //        assertNotNull(sessionID);
     //    }
 
-    @Test
+    @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
     public void createIssuePositive_statusCode201(){
-        String issueId = null;
+        //String issueId = null;
 
         // подготовка JSON текста тела запроса body
         JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
@@ -65,20 +71,28 @@ public class MyIssue {
 
         // создание задачи через выполнение метода объекта issueAPI
         issueAPI.createIssue(bodyIssue);
+        issueId = issueAPI.getRequestSender().extractResponseByPath("id");
+        keyIssue = issueAPI.getRequestSender().extractResponseByPath("key");
+        System.out.println("new issueId = " + issueId);
+        System.out.println("new keyIssue = " + keyIssue);
 
         // проверка ответа от сервера после создания задачи
         Response responseСreate = issueAPI.getRequestSender().response;
-        assertEquals(responseСreate.statusCode(), 201);
-        AssertJUnit.assertTrue(responseСreate.contentType().contains(ContentType.JSON.toString()));
-
-        keyIssue = responseСreate.getBody().jsonPath().get("key");
-
-        // проверка ответа от сервера
+        //keyIssue = responseСreate.getBody().jsonPath().get("key");
         Assert.assertEquals(responseСreate.getStatusCode(),201);
         //assertEquals(responseСreate.statusCode(), 201);
         AssertJUnit.assertTrue(responseСreate.contentType().contains(ContentType.JSON.toString()));
         assertTrue(responseСreate.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
         assertTrue(responseСreate.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
+
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("createIssuePositive_statusCode201 - thread id: " + Thread.currentThread().getId());
     }
     //    public void createIssuePositive_statusCode201_old(){
     //        //RestAssured.baseURI = "https://forapitest.atlassian.net";
@@ -102,11 +116,10 @@ public class MyIssue {
     //        assertTrue(response.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
     //    }
 
-
-    @Test
+    @Test (dependsOnMethods = {"login"})
     public void deleteIssueOnly_statusCode204() {
-        keyIssue = "QAAUT-1019";
-        System.out.println("keyIssue = " + keyIssue);
+        //keyIssue = "QAAUT-1054";
+        System.out.println("for delet keyIssue = " + keyIssue);
 
         // подготовка JSON текста тела запроса body
         JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
@@ -120,13 +133,14 @@ public class MyIssue {
         assertEquals(responseDelete.statusCode(), 204);
         AssertJUnit.assertTrue(responseDelete.contentType().contains(ContentType.JSON.toString()));
 
-        //        given().
-        //                contentType("application/json").
-        //                cookie("JSESSIONID=" + sessionID).
-        //                when().
-        //                delete("/rest/api/2/issue/" + keyIssue).
-        //                then().
-        //                statusCode(204);
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("deleteIssueOnly_statusCode204 - thread id: " + Thread.currentThread().getId());
     }
     //    public void deleteIssueOnly_statusCode204_old() {
     //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
@@ -148,129 +162,149 @@ public class MyIssue {
     //    }
 
 
-    @Test
-    public void deleteIssuePositive_status204() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        System.out.println(keyIssue + " key Issue before test");
-
+    @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
+    public void deleteIssuePositive_statusCode204() {
+        //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+        //        System.out.println(keyIssue + " key Issue before test");
         createIssuePositive_statusCode201();
-        System.out.println(keyIssue + " key Issue created test");
-        //        //System.out.println("key=" + keyIssue);
+        deleteIssueOnly_statusCode204();
+        System.out.println(keyIssue + " key Issue deleted test");
+
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("deleteIssuePositive_statusCode204 - thread id: " + Thread.currentThread().getId());
+    }
+
+    @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
+    public void getIssue(){
+        // подготовка JSON текста тела запроса body
+        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
+        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
+
+        // создание задачи через выполнение метода объекта issueAPI
+        issueAPI.createIssue(bodyIssue);
+
+        // проверка ответа от сервера после создания задачи
+        issueId = issueAPI.getRequestSender().extractResponseByPath("id");
+        keyIssue = issueAPI.getRequestSender().extractResponseByPath("key");
+        System.out.println("new issueId = " + issueId);
+        System.out.println("new keyIssue = " + keyIssue);
+
+        // получение Issue
+        issueAPI.getIssue(issueId);
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
+        AssertJUnit.assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
 
         deleteIssueOnly_statusCode204();
-
-        //        given().
-        //                contentType("application/json").
-        //                cookie("JSESSIONID=" + sessionID).
-        //                when().
-        ////                delete("/rest/api/2/issue/QAAUT-145").
-        //        delete("/rest/api/2/issue/" + keyIssue).
-        //                then().
-        //                statusCode(204);
+        System.out.println(keyIssue + " issue was deleted");
     }
 
-    @Test
-    public void createIssueNegative400(){
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        String body1 = " {\n" +
-                "\n" +
-                " \"fields\": {\n" +
-                "  \"project\": {\n" +
-                "   \"id\": \"103151\"\n" +
-                "  },\n" +
-                "  \"summary\": \"rest_test\",\n" +
-                "  \"issuetype\": {\n" +
-                "   \"id\": \"10004\"\n" +
-                "  },\n" +
-                "  \"assignee\": {\n" +
-                "   \"name\": \"r.polunov111\"\n" +
-                "  },\n" +
-                "  \"reporter\": {\n" +
-                "   \"name\": \"r.polunov\"\n" +
-                "  }\n" +
-                " }\n" +
-                "}";
-
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID="+sessionID).
-                body(body1).
-                when().
-                post("/rest/api/2/issue").
-                then().
-                statusCode(400);
-    }
-
-
-    @Test
-    public void deleteIssuePositive204() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        System.out.println(keyIssue + " first");
-
-        createIssuePositive_statusCode201();
-
-        System.out.println(keyIssue + " second");
-
-        System.out.println("key=" + keyIssue);
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                when().
-//                delete("/rest/api/2/issue/QAAUT-145").
-        delete("/rest/api/2/issue/" + keyIssue).
-                then().
-                statusCode(204);
-    }
+    //    @Test
+    //    public void createIssueNegative400(){
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //
+    //        String body1 = " {\n" +
+    //                "\n" +
+    //                " \"fields\": {\n" +
+    //                "  \"project\": {\n" +
+    //                "   \"id\": \"103151\"\n" +
+    //                "  },\n" +
+    //                "  \"summary\": \"rest_test\",\n" +
+    //                "  \"issuetype\": {\n" +
+    //                "   \"id\": \"10004\"\n" +
+    //                "  },\n" +
+    //                "  \"assignee\": {\n" +
+    //                "   \"name\": \"r.polunov111\"\n" +
+    //                "  },\n" +
+    //                "  \"reporter\": {\n" +
+    //                "   \"name\": \"r.polunov\"\n" +
+    //                "  }\n" +
+    //                " }\n" +
+    //                "}";
+    //
+    //        given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID="+sessionID).
+    //                body(body1).
+    //                when().
+    //                post("/rest/api/2/issue").
+    //                then().
+    //                statusCode(400);
+    //    }
 
 
-    @Test
-    public void deleteGroupIssuePositive204(){
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //    @Test
+    //    public void deleteIssuePositive204() {
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //        System.out.println(keyIssue + " first");
+    //
+    //        createIssuePositive_statusCode201();
+    //
+    //        System.out.println(keyIssue + " second");
+    //
+    //        System.out.println("key=" + keyIssue);
+    //        given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID=" + sessionID).
+    //                when().
+    ////                delete("/rest/api/2/issue/QAAUT-145").
+    //        delete("/rest/api/2/issue/" + keyIssue).
+    //                then().
+    //                statusCode(204);
+    //    }
 
-            FilterIssue();
 
-        System.out.println(stringList);
-        for (String s : stringList) {
-            System.out.println("key=" +  s);
-            given().
-                    contentType("application/json").
-                    cookie("JSESSIONID=" + sessionID).
-                    when().
-//                delete("/rest/api/2/issue/QAAUT-145").
-        delete("/rest/api/2/issue/"+s).
-                    then().
-                    statusCode(204);
-        }
-        }
+    //    @Test
+    //    public void deleteGroupIssuePositive204() {
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //
+    //        FilterIssue();
+    //
+    //        System.out.println(stringList);
+    //        for (String s : stringList) {
+    //            System.out.println("key=" + s);
+    //            given().
+    //                    contentType("application/json").
+    //                    cookie("JSESSIONID=" + sessionID).
+    //                    when().
+    ////                delete("/rest/api/2/issue/QAAUT-145").
+    //        delete("/rest/api/2/issue/" + s).
+    //                    then().
+    //                    statusCode(204);
+    //        }
+    //    }
 
 
-    @Test
-    public void deleteIssueNegative401(){
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //    @Test
+    //    public void deleteIssueNegative401(){
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //
+    //        given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID=" + "1").
+    //                when().
+    //                delete("/rest/api/2/issue/").
+    //                then().
+    //                statusCode(401);
+    //    }
 
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + "1").
-                when().
-                delete("/rest/api/2/issue/").
-                then().
-                statusCode(401);
-    }
-
-    @Test
-    public void deleteIssueNegative404(){
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                when().
-                delete("/rest/api/2/issue/QAAUT-145").
-                then().
-                statusCode(404);
-    }
-
+    //    @Test
+    //    public void deleteIssueNegative404(){
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+    //
+    //        given().
+    //                contentType("application/json").
+    //                cookie("JSESSIONID=" + sessionID).
+    //                when().
+    //                delete("/rest/api/2/issue/QAAUT-145").
+    //                then().
+    //                statusCode(404);
+    //    }
 
 
     @Test
@@ -281,7 +315,7 @@ public class MyIssue {
                 contentType("application/json").
                 cookie("JSESSIONID=" + sessionID).
                 body("{\n" +
-                        "    \"jql\": \"project = QAAUT and reporter = r.polunov\",\n" +
+                        "    \"jql\": \"project = QAAUT and reporter = studinskyi\",\n" +
                         "    \"startAt\": 0,\n" +
                         "    \"maxResults\": 3,\n" +
                         "    \"fields\": [\n" +

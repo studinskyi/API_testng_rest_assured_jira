@@ -26,12 +26,15 @@ public class IssueAPI {
                 .createRequest(body)
                 .delete(ApiUrls.DELETE.getUri(keyIssue));
     }
-    //    public void deleteIssue_old(String issueId) {
-    //        requestSender
-    //                .createRequest()
-    //                .delete(ApiUrls.ISSUE.getUri(issueId));
-    //
-    //    }
+
+    public void getIssue(String issueId){
+        requestSender
+                //.createRequest(body)
+                .get(ApiUrls.ISSUE.getUri(issueId));
+        //        RequestSender requestSender = new RequestSender();
+        //        requestSender.createEmptyRequest().get(ApiUrls.ISSUE.getUri(issue));
+        //        return requestSender;
+    }
 
     public void addComment(String issueId, String body) {
         requestSender
