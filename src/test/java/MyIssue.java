@@ -41,7 +41,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -87,7 +87,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -135,7 +135,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -164,15 +164,16 @@ public class MyIssue {
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
     public void deleteIssuePositive_statusCode204() {
-        //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-        //        System.out.println(keyIssue + " key Issue before test");
+        // создание Issue
         createIssuePositive_statusCode201();
+
+        // удаление Issue
         deleteIssueOnly_statusCode204();
         System.out.println(keyIssue + " key Issue deleted test");
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -197,7 +198,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -208,23 +209,12 @@ public class MyIssue {
 
     @Test(groups = {"Search"}, dependsOnMethods = {"login"})
     public void searchIssue_statusCode200() {
-        //        // подготовка JSON текста тела запроса body
-        //        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
-        //        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
-        //
-        //        // создание задачи через выполнение метода объекта issueAPI
-        //        issueAPI.createIssue(bodyIssue);
-        //        issueId = issueAPI.getRequestSender().extractResponseByPath("id");
-        //        keyIssue = issueAPI.getRequestSender().extractResponseByPath("key");
-        //        System.out.println("new issueId = " + issueId);
-        //        System.out.println("new keyIssue = " + keyIssue);
-
         // создание Issue
         createIssuePositive_statusCode201();
 
         // поиск Issue по значению ключа задачи keyIssue через строку запроса "jql:id = " + issueId
         System.out.println("looking for issue for the keyIssue : " + keyIssue);
-        String  Jira_searchFixture = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
+        String Jira_searchFixture = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
         issueAPI.search(Jira_searchFixture);
         assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
         assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
@@ -235,12 +225,38 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         //проверяем, какой поток
         System.out.println("searchIssue_statusCode200 - thread id: " + Thread.currentThread().getId());
+    }
+
+    @Test(groups = {"Comment"}, dependsOnMethods = {"login"})
+    public void addComment() {
+        // создание Issue
+        createIssuePositive_statusCode201();
+
+        // добавление комментария в Issue
+        String comment = jiraJSONFixture.generateJSONForAddComment();
+        issueAPI.addComment(keyIssue, comment);
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 201);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
+
+        //        // удаление задачи
+        //        deleteIssueOnly_statusCode204();
+        //        System.out.println(keyIssue + " issue was deleted");
+        //
+        //        // ожидание после выполнения
+        //        try {
+        //            Thread.sleep(500);
+        //        } catch (InterruptedException e) {
+        //            e.printStackTrace();
+        //        }
+        //        //проверяем, какой поток
+        //        System.out.println("searchIssue_statusCode200 - thread id: " + Thread.currentThread().getId());
+
     }
 
 

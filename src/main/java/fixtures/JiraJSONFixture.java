@@ -39,15 +39,15 @@ public class JiraJSONFixture {
         return issue.toJSONString();
     }
 
-    public String generateJSONForSearchFilter(String issueKey){
-        JSONObject credentials=new JSONObject();
+    public String generateJSONForSearchFilter(String issueKey) {
+        JSONObject credentials = new JSONObject();
         JSONArray fields = new JSONArray();
         fields.add("summary");
         fields.add("key");
 
         //credentials.put("jql", "id = " + issueId);
         credentials.put("jql", "key = " + issueKey);
-        credentials.put("startAt","0");
+        credentials.put("startAt", "0");
         credentials.put("maxResults", "200");
         credentials.put("fields", fields);
 
@@ -55,6 +55,12 @@ public class JiraJSONFixture {
 
         System.out.println("fixture for Search issue: " + credentials.toString());
         return credentials.toJSONString();
+    }
+
+    public String generateJSONForAddComment() {
+        JSONObject addCommentValue = new JSONObject();
+        addCommentValue.put("body", "This is a comment added for testing " + getCurrenDateTimeString());
+        return addCommentValue.toJSONString();
     }
 
     public String getCurrenDateTimeString() {

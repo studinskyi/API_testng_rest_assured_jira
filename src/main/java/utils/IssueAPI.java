@@ -40,10 +40,11 @@ public class IssueAPI {
                 .get(ApiUrls.SEARCH.getUri());
     }
 
-    public void addComment(String issueId, String body) {
+    public void addComment(String issueIdOrKey, String body) {
         requestSender
                 .createRequest(body)
-                .post(ApiUrls.ISSUE.getUri() + "/" + issueId + "/comment");
+                .post(ApiUrls.ISSUE.getUri(issueIdOrKey + "/comment"));
+                //.post(ApiUrls.ISSUE.getUri() + "/" + issueId + "/comment");
 
     }
 
