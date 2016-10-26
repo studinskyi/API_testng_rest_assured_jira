@@ -4,7 +4,8 @@ public enum ApiUrls {
 
     LOGIN("/rest/auth/1/session"),
     ISSUE("/rest/api/2/issue"),
-    DELETE("/rest/api/2/issue");
+    DELETE("/rest/api/2/issue"),
+    SEARCH("/rest/api/2/search");
 
     private String uri;
 

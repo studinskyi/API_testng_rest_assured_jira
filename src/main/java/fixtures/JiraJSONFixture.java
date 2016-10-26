@@ -1,5 +1,6 @@
 package fixtures;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -36,6 +37,24 @@ public class JiraJSONFixture {
         reporter.put("name", "studinskyi");
 
         return issue.toJSONString();
+    }
+
+    public String generateJSONForSearchFilter(String issueKey){
+        JSONObject credentials=new JSONObject();
+        JSONArray fields = new JSONArray();
+        fields.add("summary");
+        fields.add("key");
+
+        //credentials.put("jql", "id = " + issueId);
+        credentials.put("jql", "key = " + issueKey);
+        credentials.put("startAt","0");
+        credentials.put("maxResults", "200");
+        credentials.put("fields", fields);
+
+        //{"jql":"project = QAAUT","maxResults":"15","startAt":"0"}
+
+        System.out.println("fixture for Search issue: " + credentials.toString());
+        return credentials.toJSONString();
     }
 
     public String getCurrenDateTimeString() {

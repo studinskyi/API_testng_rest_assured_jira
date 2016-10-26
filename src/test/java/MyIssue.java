@@ -31,7 +31,7 @@ public class MyIssue {
 
     @Test(groups = {"Issue", "Search", "Comment"})
     //@BeforeTest(groups = {"Issue", "Search", "Comment"})
-    public void login(){
+    public void login() {
         issueAPI = new IssueAPI();
         issueAPI.loginAPI();
         sessionID = issueAPI.getRequestSender().extractResponseByPath("session.value");
@@ -62,7 +62,7 @@ public class MyIssue {
     //    }
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
-    public void createIssuePositive_statusCode201(){
+    public void createIssuePositive_statusCode201() {
         //String issueId = null;
 
         // подготовка JSON текста тела запроса body
@@ -79,7 +79,7 @@ public class MyIssue {
         // проверка ответа от сервера после создания задачи
         Response responseСreate = issueAPI.getRequestSender().response;
         //keyIssue = responseСreate.getBody().jsonPath().get("key");
-        Assert.assertEquals(responseСreate.getStatusCode(),201);
+        Assert.assertEquals(responseСreate.getStatusCode(), 201);
         //assertEquals(responseСreate.statusCode(), 201);
         AssertJUnit.assertTrue(responseСreate.contentType().contains(ContentType.JSON.toString()));
         assertTrue(responseСreate.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
@@ -116,9 +116,9 @@ public class MyIssue {
     //        assertTrue(response.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
     //    }
 
-    @Test (dependsOnMethods = {"login"})
+    @Test(dependsOnMethods = {"login"})
     public void deleteIssueOnly_statusCode204() {
-        //keyIssue = "QAAUT-1054";
+        //keyIssue = "QAAUT-1056";
         System.out.println("for delet keyIssue = " + keyIssue);
 
         // подготовка JSON текста тела запроса body
@@ -126,7 +126,7 @@ public class MyIssue {
         String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
 
         // удаление задачи через выполнение метода объекта issueAPI
-        issueAPI.deleteIssue(bodyIssue,keyIssue);
+        issueAPI.deleteIssue(bodyIssue, keyIssue);
 
         // проверка ответа от сервера после создания задачи
         Response responseDelete = issueAPI.getRequestSender().response;
@@ -181,179 +181,83 @@ public class MyIssue {
     }
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
-    public void getIssue(){
-        // подготовка JSON текста тела запроса body
-        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
-        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
+    public void getIssue_statusCode200() {
+        // создание Issue
+        createIssuePositive_statusCode201();
 
-        // создание задачи через выполнение метода объекта issueAPI
-        issueAPI.createIssue(bodyIssue);
-
-        // проверка ответа от сервера после создания задачи
-        issueId = issueAPI.getRequestSender().extractResponseByPath("id");
-        keyIssue = issueAPI.getRequestSender().extractResponseByPath("key");
-        System.out.println("new issueId = " + issueId);
-        System.out.println("new keyIssue = " + keyIssue);
-
-        // получение Issue
+        // получение Issue по ключу задачи keyIssue
         issueAPI.getIssue(issueId);
         assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
         AssertJUnit.assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
+        System.out.println("get issue keyIssue = " + keyIssue);
 
+        // удаление задачи
         deleteIssueOnly_statusCode204();
         System.out.println(keyIssue + " issue was deleted");
-    }
 
-    //    @Test
-    //    public void createIssueNegative400(){
-    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //
-    //        String body1 = " {\n" +
-    //                "\n" +
-    //                " \"fields\": {\n" +
-    //                "  \"project\": {\n" +
-    //                "   \"id\": \"103151\"\n" +
-    //                "  },\n" +
-    //                "  \"summary\": \"rest_test\",\n" +
-    //                "  \"issuetype\": {\n" +
-    //                "   \"id\": \"10004\"\n" +
-    //                "  },\n" +
-    //                "  \"assignee\": {\n" +
-    //                "   \"name\": \"r.polunov111\"\n" +
-    //                "  },\n" +
-    //                "  \"reporter\": {\n" +
-    //                "   \"name\": \"r.polunov\"\n" +
-    //                "  }\n" +
-    //                " }\n" +
-    //                "}";
-    //
-    //        given().
-    //                contentType("application/json").
-    //                cookie("JSESSIONID="+sessionID).
-    //                body(body1).
-    //                when().
-    //                post("/rest/api/2/issue").
-    //                then().
-    //                statusCode(400);
-    //    }
-
-
-    //    @Test
-    //    public void deleteIssuePositive204() {
-    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //        System.out.println(keyIssue + " first");
-    //
-    //        createIssuePositive_statusCode201();
-    //
-    //        System.out.println(keyIssue + " second");
-    //
-    //        System.out.println("key=" + keyIssue);
-    //        given().
-    //                contentType("application/json").
-    //                cookie("JSESSIONID=" + sessionID).
-    //                when().
-    ////                delete("/rest/api/2/issue/QAAUT-145").
-    //        delete("/rest/api/2/issue/" + keyIssue).
-    //                then().
-    //                statusCode(204);
-    //    }
-
-
-    //    @Test
-    //    public void deleteGroupIssuePositive204() {
-    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //
-    //        FilterIssue();
-    //
-    //        System.out.println(stringList);
-    //        for (String s : stringList) {
-    //            System.out.println("key=" + s);
-    //            given().
-    //                    contentType("application/json").
-    //                    cookie("JSESSIONID=" + sessionID).
-    //                    when().
-    ////                delete("/rest/api/2/issue/QAAUT-145").
-    //        delete("/rest/api/2/issue/" + s).
-    //                    then().
-    //                    statusCode(204);
-    //        }
-    //    }
-
-
-    //    @Test
-    //    public void deleteIssueNegative401(){
-    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //
-    //        given().
-    //                contentType("application/json").
-    //                cookie("JSESSIONID=" + "1").
-    //                when().
-    //                delete("/rest/api/2/issue/").
-    //                then().
-    //                statusCode(401);
-    //    }
-
-    //    @Test
-    //    public void deleteIssueNegative404(){
-    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //
-    //        given().
-    //                contentType("application/json").
-    //                cookie("JSESSIONID=" + sessionID).
-    //                when().
-    //                delete("/rest/api/2/issue/QAAUT-145").
-    //                then().
-    //                statusCode(404);
-    //    }
-
-
-    @Test
-    public void FilterIssue(){
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        Response response = given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                body("{\n" +
-                        "    \"jql\": \"project = QAAUT and reporter = studinskyi\",\n" +
-                        "    \"startAt\": 0,\n" +
-                        "    \"maxResults\": 3,\n" +
-                        "    \"fields\": [\n" +
-                        "        \"key\" \n" +
-                        "    ]\n" +
-                        "}").
-                post("/rest/api/2/search");
-
-        String rez = response.asString();
-
-        System.out.println(rez);
-
-
-//        List<String> stringList = response.path("key");
-        stringList = from(rez).getList("issues.key");
-
-//        Person[] persons = given().when().get("person/").as(Person[].class);
-
-        for (String s2 : stringList) {
-            System.out.println(s2);
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        //проверяем, какой поток
+        System.out.println("getIssue_statusCode200 - thread id: " + Thread.currentThread().getId());
+    }
+
+
+    @Test(groups = {"Search"}, dependsOnMethods = {"login"})
+    public void searchIssue_statusCode200() {
+        //        // подготовка JSON текста тела запроса body
+        //        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
+        //        String bodyIssue = jiraJSONFixture.generateJSONForSampleIssue();
+        //
+        //        // создание задачи через выполнение метода объекта issueAPI
+        //        issueAPI.createIssue(bodyIssue);
+        //        issueId = issueAPI.getRequestSender().extractResponseByPath("id");
+        //        keyIssue = issueAPI.getRequestSender().extractResponseByPath("key");
+        //        System.out.println("new issueId = " + issueId);
+        //        System.out.println("new keyIssue = " + keyIssue);
+
+        // создание Issue
+        createIssuePositive_statusCode201();
+
+        // поиск Issue по значению ключа задачи keyIssue через строку запроса "jql:id = " + issueId
+        System.out.println("looking for issue for the keyIssue : " + keyIssue);
+        String  Jira_searchFixture = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
+        issueAPI.search(Jira_searchFixture);
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
+
+        // удаление задачи
+        deleteIssueOnly_statusCode204();
+        System.out.println(keyIssue + " issue was deleted");
+
+        // ожидание после выполнения
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("searchIssue_statusCode200 - thread id: " + Thread.currentThread().getId());
     }
 
 
     @Test
-    public void taskToSubTask(){
+    public void taskToSubTask() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         Response response =
-        given().
-                contentType("application/json").
-                cookie("JSESSIONID=" + sessionID).
-                body("{\"fields\":\n" +
-                        "   {\"parent\":{\"id\":\"QAAUT-133\"},\n" +
-                        "   \"project\":{\"id\":\"10315\"},\n" +
-                        "   \"issuetype\":{\"id\":\"10003\"}}\n" +
-                        "}").
-                put("/rest/api/2/issue/QAAUT-255");
+                given().
+                        contentType("application/json").
+                        cookie("JSESSIONID=" + sessionID).
+                        body("{\"fields\":\n" +
+                                "   {\"parent\":{\"id\":\"QAAUT-133\"},\n" +
+                                "   \"project\":{\"id\":\"10315\"},\n" +
+                                "   \"issuetype\":{\"id\":\"10003\"}}\n" +
+                                "}").
+                        put("/rest/api/2/issue/QAAUT-255");
 
         System.out.println(response.asString());
         assertTrue(response.getStatusCode() == 204);
@@ -362,7 +266,7 @@ public class MyIssue {
 
 
     @Test
-    public void addVote(){
+    public void addVote() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-138";
@@ -380,7 +284,7 @@ public class MyIssue {
 
 
     @Test
-    public void getVote(){
+    public void getVote() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-138";
@@ -397,7 +301,7 @@ public class MyIssue {
     }
 
     @Test
-    public void remoteVote(){
+    public void remoteVote() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-138";
@@ -413,7 +317,7 @@ public class MyIssue {
     }
 
     @Test
-    public void addComment201(){
+    public void addComment201() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-1148";
@@ -432,7 +336,7 @@ public class MyIssue {
     }
 
     @Test
-    public void addComment400(){
+    public void addComment400() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-1148";
@@ -451,7 +355,7 @@ public class MyIssue {
     }
 
     @Test
-    public void getComment200(){
+    public void getComment200() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-1148";
@@ -463,10 +367,9 @@ public class MyIssue {
                         get("/rest/api/2/issue/" + keyIssue + "/comment");
 
 
-
         stringList = from(response.asString()).getList("comments.id");
 
-        System.out.println(stringList.get(stringList.size()-1));
+        System.out.println(stringList.get(stringList.size() - 1));
 
         System.out.println(response.asString());
         System.out.println(response.getBody().jsonPath().get("comments.body").toString());
@@ -475,7 +378,7 @@ public class MyIssue {
     }
 
     @Test
-    public void getComment404(){
+    public void getComment404() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-9999999";
@@ -493,7 +396,7 @@ public class MyIssue {
     }
 
     @Test
-    public void deleteComment204(){
+    public void deleteComment204() {
         RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
 
         keyIssue = "QA-1148";
@@ -503,7 +406,7 @@ public class MyIssue {
                 given().
                         contentType("application/json").
                         cookie("JSESSIONID=" + sessionID).
-                        delete("/rest/api/2/issue/" + keyIssue + "/comment/" + stringList.get(stringList.size()-1));
+                        delete("/rest/api/2/issue/" + keyIssue + "/comment/" + stringList.get(stringList.size() - 1));
 
 
 //        System.out.println(response.getBody().jsonPath().get("comments.body").toString());

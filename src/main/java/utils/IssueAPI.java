@@ -1,6 +1,7 @@
 package utils;
 
 import apis.ApiUrls;
+import com.jayway.restassured.response.Response;
 
 public class IssueAPI {
 
@@ -10,7 +11,7 @@ public class IssueAPI {
         return requestSender;
     }
 
-    public void loginAPI(){
+    public void loginAPI() {
         requestSender.authenticate();
     }
 
@@ -27,13 +28,16 @@ public class IssueAPI {
                 .delete(ApiUrls.DELETE.getUri(keyIssue));
     }
 
-    public void getIssue(String issueId){
+    public void getIssue(String issueId) {
         requestSender
                 //.createRequest(body)
                 .get(ApiUrls.ISSUE.getUri(issueId));
-        //        RequestSender requestSender = new RequestSender();
-        //        requestSender.createEmptyRequest().get(ApiUrls.ISSUE.getUri(issue));
-        //        return requestSender;
+    }
+
+    public void search(String body) {
+        requestSender
+                .createRequest(body)
+                .get(ApiUrls.SEARCH.getUri());
     }
 
     public void addComment(String issueId, String body) {
