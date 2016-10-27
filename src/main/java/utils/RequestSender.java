@@ -22,8 +22,6 @@ public class RequestSender {
     }
 
     public void authenticate() {
-
-
         JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
         String credentials = jiraJSONFixture.generateJSONForLogin();
 
@@ -31,6 +29,16 @@ public class RequestSender {
                 .post(ApiUrls.LOGIN.getUri());
 
         this.JSESSIONID = this.response.then().extract().path("session.value");
+    }
+
+    public void authenticateNegative() {
+        JiraJSONFixture jiraJSONFixture = new JiraJSONFixture();
+        String credentials = jiraJSONFixture.generateJSONForLoginNegative();
+
+        createRequest(credentials)
+                .post(ApiUrls.LOGIN.getUri());
+
+        //this.JSESSIONID = this.response.then().extract().path("session.value");
     }
 
     public RequestSender createRequest(String body) {
@@ -67,6 +75,11 @@ public class RequestSender {
 
     public RequestSender get(String uri) {
         this.response = requestSpecification.get(uri);
+        return this;
+    }
+
+    public RequestSender put(String uri) {
+        response = requestSpecification.put(uri);
         return this;
     }
 

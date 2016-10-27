@@ -41,25 +41,21 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         //проверяем, какой поток
         System.out.println("Log in - thread id: " + Thread.currentThread().getId());
     }
-    //    public void login_old(){
-    //        //RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-    //        //String loginBody = jiraJSONFixture.generateJSONForLogin();
-    //        RequestSender requestSender = new RequestSender();
-    //        requestSender.authenticate();
-    //
-    //        sessionID = requestSender.extractResponseByPath("session.value");
-    //        //        assertTrue(response.getStatusCode() == 200);
-    //        //        assertTrue(response.path("session") != null);
-    //        //assertNotNull(response.path("session"));
-    //        assertNotNull(sessionID);
-    //    }
+
+    @Test(groups = {"Issue"})
+    //@Test(enabled = false)
+    public void loginNegative() {
+        issueAPI = new IssueAPI();
+        issueAPI.loginAPI_Negative();
+        assertTrue(issueAPI.getRequestSender().response.getStatusCode() != 200);
+    }
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
     public void createIssuePositive_statusCode201() {
@@ -87,7 +83,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -118,7 +114,7 @@ public class MyIssue {
 
     @Test(dependsOnMethods = {"login"})
     public void deleteIssueOnly_statusCode204() {
-        //keyIssue = "QAAUT-1056";
+        //keyIssue = "QAAUT-1156";
         System.out.println("for delet keyIssue = " + keyIssue);
 
         // подготовка JSON текста тела запроса body
@@ -135,7 +131,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -173,7 +169,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -198,7 +194,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -225,7 +221,7 @@ public class MyIssue {
 
         // ожидание после выполнения
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -234,217 +230,108 @@ public class MyIssue {
     }
 
     @Test(groups = {"Comment"}, dependsOnMethods = {"login"})
-    public void addComment() {
+    public void addComment_statusCode201() {
         // создание Issue
         createIssuePositive_statusCode201();
 
         // добавление комментария в Issue
-        String comment = jiraJSONFixture.generateJSONForAddComment();
-        issueAPI.addComment(keyIssue, comment);
+        String Jira_commentFixture = jiraJSONFixture.generateJSONForAddComment();
+        issueAPI.addComment(Jira_commentFixture, keyIssue);
         assertEquals(issueAPI.getRequestSender().response.statusCode(), 201);
         assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
 
-        //        // удаление задачи
-        //        deleteIssueOnly_statusCode204();
-        //        System.out.println(keyIssue + " issue was deleted");
-        //
-        //        // ожидание после выполнения
-        //        try {
-        //            Thread.sleep(500);
-        //        } catch (InterruptedException e) {
-        //            e.printStackTrace();
-        //        }
-        //        //проверяем, какой поток
-        //        System.out.println("searchIssue_statusCode200 - thread id: " + Thread.currentThread().getId());
+        // удаление задачи
+        deleteIssueOnly_statusCode204();
+        System.out.println(keyIssue + " issue was deleted");
 
+        // ожидание после выполнения
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("addComment_statusCode201 - thread id: " + Thread.currentThread().getId());
     }
 
+    @Test(groups = {"Comment"}, dependsOnMethods = {"login"})
+    public void deleteComment_statusCode204() {
+        // создание Issue
+        createIssuePositive_statusCode201();
 
-    @Test
-    public void taskToSubTask() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+        // добавление комментария в Issue
+        String Jira_commentFixture = jiraJSONFixture.generateJSONForAddComment();
+        issueAPI.addComment(Jira_commentFixture, keyIssue);
+        String idComment = issueAPI.getRequestSender().extractResponseByPath("id");
+        System.out.println("id new comment in created issue = " + idComment);
 
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        body("{\"fields\":\n" +
-                                "   {\"parent\":{\"id\":\"QAAUT-133\"},\n" +
-                                "   \"project\":{\"id\":\"10315\"},\n" +
-                                "   \"issuetype\":{\"id\":\"10003\"}}\n" +
-                                "}").
-                        put("/rest/api/2/issue/QAAUT-255");
+        // удаление комментария в Issue
+        issueAPI.deleteComment(keyIssue, idComment);
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 204);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
 
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 204);
+        // удаление задачи
+        deleteIssueOnly_statusCode204();
+        System.out.println(keyIssue + " issue was deleted");
 
+        // ожидание после выполнения
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("deleteComment_statusCode204 - thread id: " + Thread.currentThread().getId());
     }
 
+    @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
+    public void changeTypeIssue_statusCode204() {
+        // создание Issue
+        createIssuePositive_statusCode201();
 
-    @Test
-    public void addVote() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
+        //измение типа issue
+        String Jira_SetTypeIssueFixture = jiraJSONFixture.generateJSONForSetTypeIssue("10003");
+        issueAPI.changeTypeIssue(Jira_SetTypeIssueFixture, keyIssue);
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 204);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
 
-        keyIssue = "QA-138";
+        // удаление задачи
+        deleteIssueOnly_statusCode204();
+        System.out.println(keyIssue + " issue was deleted");
 
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        post("/rest/api/2/issue/" + keyIssue + "/votes");
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 204);
-
+        // ожидание после выполнения
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //проверяем, какой поток
+        System.out.println("changeTypeIssue_statusCode204 - thread id: " + Thread.currentThread().getId());
     }
+    //    @Test
+    //    public void changeTypeIssue_old() {
+    //
+    //        String keyIssue = "QAAUT-202";
+    //        //String IdIssue = "13306";
+    //        //login();
+    //        System.out.println("session ID = " + sessionId);
+    //
+    //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080/";
+    //        String issue_type = "10004";
+    //
+    //        given()
+    //                .contentType("application/json")
+    //                .cookie("JSESSIONID=" + sessionId)
+    //                .body("{\"fields\": \t{\"issuetype\": {\"id\": \"" + issue_type + "\"}}}")
+    //                .put("/rest/api/2/issue/" + keyIssue)
+    //                .then()
+    //                .assertThat()
+    //                .statusCode(204);
+    //        //        statusCode(200).body("session.value");
+    //
+    //        System.out.println("key new issue = " + keyIssue);
+    //        //System.out.println(given().when().get("/apps").asString());
+    //
+    //    }
 
-
-    @Test
-    public void getVote() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-138";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        get("/rest/api/2/issue/" + keyIssue + "/votes");
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 200);
-        assertTrue(response.getBody().jsonPath().get("voters.displayName").toString().equals("[r.polunov]"));
-    }
-
-    @Test
-    public void remoteVote() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-138";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        delete("/rest/api/2/issue/" + keyIssue + "/votes");
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 204);
-    }
-
-    @Test
-    public void addComment201() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-1148";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        body("{\n" +
-                                "    \"body\": \"new comment via API\"\n" +
-                                "}").
-                        post("/rest/api/2/issue/" + keyIssue + "/comment");
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 201);
-    }
-
-    @Test
-    public void addComment400() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-1148";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        body("{\n" +
-                                "    \"body1\": \"new comment via API\"\n" +
-                                "}").
-                        post("/rest/api/2/issue/" + keyIssue + "/comment");
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 400);
-    }
-
-    @Test
-    public void getComment200() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-1148";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        get("/rest/api/2/issue/" + keyIssue + "/comment");
-
-
-        stringList = from(response.asString()).getList("comments.id");
-
-        System.out.println(stringList.get(stringList.size() - 1));
-
-        System.out.println(response.asString());
-        System.out.println(response.getBody().jsonPath().get("comments.body").toString());
-        System.out.println(response.getBody().jsonPath().get("comments.id").toString());
-        assertTrue(response.getStatusCode() == 200);
-    }
-
-    @Test
-    public void getComment404() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-9999999";
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        get("/rest/api/2/issue/" + keyIssue + "/comment");
-
-
-        System.out.println(response.asString());
-        assertTrue(response.getStatusCode() == 404);
-        assertTrue(response.getBody().jsonPath().get("errorMessages").toString().contains("Issue Does Not Exist"));
-    }
-
-    @Test
-    public void deleteComment204() {
-        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-
-        keyIssue = "QA-1148";
-        getComment200();
-
-        Response response =
-                given().
-                        contentType("application/json").
-                        cookie("JSESSIONID=" + sessionID).
-                        delete("/rest/api/2/issue/" + keyIssue + "/comment/" + stringList.get(stringList.size() - 1));
-
-
-//        System.out.println(response.getBody().jsonPath().get("comments.body").toString());
-        assertTrue(response.getStatusCode() == 204);
-    }
-
-//    @Test
-//    public void taskToSubTask2(){
-//        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
-//
-//        Response response =
-//        given().
-//                contentType("application/json").
-//                cookie("JSESSIONID=" + sessionID).
-//                body("{\"fields\":\n" +
-//                        "   {\"parent\":{\"id\":\"QAAUT-133\"},\n" +
-//                        "   \"project\":{\"id\":\"10315\"},\n" +
-//                        "   \"issuetype\":{\"id\":\"10002\"}}\n" +
-//                        "}").
-//                get("/rest/api/2/issue/QAAUT-256/editmeta");
-//
-//        System.out.println(response.asString());
-//
-//    }
 }

@@ -15,6 +15,10 @@ public class IssueAPI {
         requestSender.authenticate();
     }
 
+    public void loginAPI_Negative() {
+        requestSender.authenticateNegative();
+    }
+
     public void createIssue(String body) {
         requestSender
                 .createRequest(body)
@@ -40,7 +44,7 @@ public class IssueAPI {
                 .get(ApiUrls.SEARCH.getUri());
     }
 
-    public void addComment(String issueIdOrKey, String body) {
+    public void addComment(String body, String issueIdOrKey) {
         requestSender
                 .createRequest(body)
                 .post(ApiUrls.ISSUE.getUri(issueIdOrKey + "/comment"));
@@ -48,4 +52,16 @@ public class IssueAPI {
 
     }
 
+    public void deleteComment(String issueIdOrKey, String idComment){
+        requestSender
+                .createRequest("")
+                .delete(ApiUrls.ISSUE.getUri(issueIdOrKey + "/comment/" + idComment));
+                //.delete(ApiUrls.ISSUE.getUri() + "/" + issueIdOrKey + "/comment");
+    }
+
+    public void changeTypeIssue(String body, String issueId){
+        requestSender
+                .createRequest(body)
+                .put(ApiUrls.ISSUE.getUri(issueId));
+    }
 }

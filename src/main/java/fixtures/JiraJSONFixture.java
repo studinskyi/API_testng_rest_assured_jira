@@ -14,6 +14,13 @@ public class JiraJSONFixture {
         return credentials.toJSONString();
     }
 
+    public String generateJSONForLoginNegative() {
+        JSONObject credentials = new JSONObject();
+        credentials.put("username", "st123");
+        credentials.put("password", "123");
+        return credentials.toJSONString();
+    }
+
     public String generateJSONForSampleIssue() {
         JSONObject issue = new JSONObject();
 
@@ -58,9 +65,9 @@ public class JiraJSONFixture {
     }
 
     public String generateJSONForAddComment() {
-        JSONObject addCommentValue = new JSONObject();
-        addCommentValue.put("body", "This is a comment added for testing " + getCurrenDateTimeString());
-        return addCommentValue.toJSONString();
+        JSONObject addCommentJSON = new JSONObject();
+        addCommentJSON.put("body", "This is a comment added for testing " + getCurrenDateTimeString());
+        return addCommentJSON.toJSONString();
     }
 
     public String getCurrenDateTimeString() {
@@ -69,5 +76,15 @@ public class JiraJSONFixture {
         SimpleDateFormat formatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         //FileManager.executedOperations.put(formatDate.format(d), FileManager.currentCommand);
         return formatDate.format(d);
+    }
+
+    public String generateJSONForSetTypeIssue(String typeIssueId){
+        JSONObject credentials =new JSONObject();
+        JSONObject fields= new JSONObject();
+        JSONObject issuetype = new JSONObject();
+        fields.put("issuetype", issuetype);
+        issuetype.put("id", typeIssueId);
+        credentials.put("fields", fields);
+        return credentials.toJSONString();
     }
 }
