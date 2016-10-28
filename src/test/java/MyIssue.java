@@ -49,8 +49,8 @@ public class MyIssue {
         System.out.println("Log in - thread id: " + Thread.currentThread().getId());
     }
 
-    @Test(groups = {"Issue"})
-    //@Test(enabled = false)
+    //@Test(groups = {"Issue"})
+    @Test(enabled = false)
     public void loginNegative() {
         issueAPI = new IssueAPI();
         issueAPI.loginAPI_Negative();
