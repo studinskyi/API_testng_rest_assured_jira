@@ -1,5 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="test_Suite_API_lr10" parallel="methods" thread-count="2">
+<suite name="test_Suite_API_lr10" parallel="tests" thread-count="3">
+<!--<suite name="test_Suite_API_lr10" parallel="methods" thread-count="2"> -->
     <test name="Issue_Test_API_lr10">
         <groups>
             <run>
