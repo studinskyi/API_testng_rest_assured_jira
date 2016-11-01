@@ -9,6 +9,8 @@ import org.testng.annotations.Test;
 import utils.IssueAPI;
 import utils.RequestSender;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -129,28 +131,31 @@ public class MyIssue {
     //    }
 
     @Test(dependsOnMethods = {"login"})
-    public void deleteIssueOnly_statusCode204() {
-        keyIssue = "QAAUT-1513";
-        System.out.println("for delet keyIssue = " + keyIssue);
+    public void deleteIssuesOnly() {
+        //keyIssue = "QAAUT-1513";
+        List<String> issuesToDelete = getIssuesToDelete();
+        for (String elem : issuesToDelete) {
+            //System.out.println(elem);
+            keyIssue = elem;
+            System.out.println("for delet keyIssue = " + keyIssue);
 
-        // подготовка JSON текста тела запроса body для удаления issue
-        String body_deleteIssue = jiraJSONFixture.generateJSONForSampleIssue();
-        // удаление задачи через выполнение метода объекта issueAPI
-        issueAPI.deleteIssue(body_deleteIssue, keyIssue);
+            // подготовка JSON текста тела запроса body для удаления issue
+            String body_deleteIssue = jiraJSONFixture.generateJSONForSampleIssue();
+            // удаление задачи через выполнение метода объекта issueAPI
+            issueAPI.deleteIssue(body_deleteIssue, keyIssue);
 
-        // проверка ответа от сервера после создания задачи
-        Response responseDelete = issueAPI.getRequestSender().response;
-        assertEquals(responseDelete.statusCode(), 204);
-        AssertJUnit.assertTrue(responseDelete.contentType().contains(ContentType.JSON.toString()));
+            // проверка ответа от сервера после создания задачи
+            Response responseDelete = issueAPI.getRequestSender().response;
+            assertEquals(responseDelete.statusCode(), 204);
+            AssertJUnit.assertTrue(responseDelete.contentType().contains(ContentType.JSON.toString()));
 
-        // ожидание после выполнения
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            // ожидание после выполнения
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        //проверяем, какой поток
-        System.out.println("deleteIssueOnly_statusCode204 - thread id: " + Thread.currentThread().getId());
     }
     //    public void deleteIssueOnly_statusCode204_old() {
     //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
@@ -170,6 +175,34 @@ public class MyIssue {
     //                then().
     //                statusCode(204);
     //    }
+
+    public List<String> getIssuesToDelete() {
+        List<String> issuesToDelete = new ArrayList<String>();
+        String fullPathToFile = "IssuesToDelete.properties";
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fullPathToFile));
+            String s = reader.readLine();
+            while (s != null) {
+                issuesToDelete.add(s);
+                //            int num = Integer.parseInt(s);
+                //            if (num % 2 == 0)
+                //                list.add(num);
+                s = reader.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //        try {
+        //            listOfIssuesToDelete = Files.lines(Paths.get(file)).collect(Collectors.toList());
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
+        //        for(int i = 0; i < issuesToDelete.size(); i++){
+        //            System.out.println(issuesToDelete.get(i));
+        //        }
+        return issuesToDelete;
+    }
 
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
