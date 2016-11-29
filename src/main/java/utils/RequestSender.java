@@ -89,7 +89,7 @@ public class RequestSender {
     }
 
     public String extractResponseByPath(String path){
-        return this.response.then().extract().path(path);
+        return this.response.then().extract().path(path).toString();
     }
 
     public String extractTextResponseAsString(){

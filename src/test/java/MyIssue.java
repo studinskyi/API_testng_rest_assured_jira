@@ -1,7 +1,15 @@
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.google.gson.JsonObject;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
 import fixtures.JiraJSONFixture;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeTest;
@@ -11,6 +19,7 @@ import utils.RequestSender;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -18,6 +27,7 @@ import static io.restassured.path.json.JsonPath.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+
 
 public class MyIssue {
 
@@ -157,6 +167,34 @@ public class MyIssue {
             }
         }
     }
+
+    @Test(dependsOnMethods = {"login"})
+    public void deleteIssues_forSubstringSummary() {
+        String substringSummary = "rest_test"; // summary ~ "\\[rest_test\\]" AND project = QAAutomation2
+        List<String> issuesToDelete = getIssuesKeys_forSubstringSummary(substringSummary);
+        for (String elem : issuesToDelete) {
+            //System.out.println(elem);
+            keyIssue = elem;
+            System.out.println("for delet keyIssue = " + keyIssue);
+
+            // подготовка JSON текста тела запроса body для удаления issue
+            String body_deleteIssue = jiraJSONFixture.generateJSONForSampleIssue();
+            // удаление задачи через выполнение метода объекта issueAPI
+            issueAPI.deleteIssue(body_deleteIssue, keyIssue);
+
+            //            // проверка ответа от сервера после создания задачи
+            //            Response responseDelete = issueAPI.getRequestSender().response;
+            //            assertEquals(responseDelete.statusCode(), 204);
+            //            AssertJUnit.assertTrue(responseDelete.contentType().contains(ContentType.JSON.toString()));
+
+            // ожидание после выполнения
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     //    public void deleteIssueOnly_statusCode204_old() {
     //        RestAssured.baseURI = "http://soft.it-hillel.com.ua:8080";
     //        //        System.out.println(keyIssue + " first");
@@ -203,7 +241,6 @@ public class MyIssue {
         //        }
         return issuesToDelete;
     }
-
 
     @Test(groups = {"Issue"}, dependsOnMethods = {"login"})
     public void deleteIssuePositive_statusCode204() {
@@ -318,8 +355,14 @@ public class MyIssue {
         // поиск Issue по значению ключа задачи keyIssue через строку запроса "jql:id = " + issueId
         System.out.println("looking for issue for the keyIssue : " + keyIssue);
         //JiraJSONFixture Jira_searchFixture = new JiraJSONFixture();
-        String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
+        String testQuery = "key = " + keyIssue + " AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key DESC";
+        String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter_onQueryText(testQuery);
         issueAPI.search(body_searchIssue);
+        //System.out.println("Response total results count: " + issueAPI.getRequestSender().extractResponseByPath("total"));
+        //String strRespBody = issueAPI.getRequestSender().extractResponseByPath("issues").toString();
+        String strRespBody = issueAPI.getRequestSender().response.getBody().asString();
+        System.out.println("Response text response.getBody():");
+        System.out.println(strRespBody);
         assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
         assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
 
@@ -344,6 +387,110 @@ public class MyIssue {
             e.printStackTrace();
         }
     }
+
+    @Test(groups = {"Search"}, dependsOnMethods = {"login"})
+    public void filterIssues_example() {
+
+        // пример фильтрации через строку запроса "jql:id = " + issueId
+        //String testQuery = "summary ~ \"\\\\[rest_test\\\\]\" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key ASC";
+        //String testQuery = "summary ~ \"\\\\[rest_test\\\\]\" AND project = QAAutomation2 ORDER BY key ASC";
+        //String testQuery = "key = QAAUT-1228 AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key DESC";
+        //String testQuery = "key = QAAUT-1228 AND project = QAAutomation2 ORDER BY key ASC";
+        //key = QAAUT-1017 AND project = QAAutomation2  ORDER BY key DESC   - поиск задачи по ключу issue QAAUT-1017
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key ASC
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY updated DESC - поиск всех задач в которых summary включает подстроку rest_test
+        String testQuery = "project = QAAutomation2 ORDER BY key ASC";
+        String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter_onQueryText(testQuery);
+        //String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
+        issueAPI.search(body_searchIssue);
+        String strRespBody = issueAPI.getRequestSender().response.getBody().asString();
+        System.out.println("Response total results count: " + issueAPI.getRequestSender().extractResponseByPath("total"));
+        System.out.println("Response text response.getBody():");
+        System.out.println(strRespBody);
+        System.out.println("Response text issueAPI.getRequestSender().extractTextResponseAsString():");
+        System.out.println(issueAPI.getRequestSender().extractTextResponseAsString());
+        //        System.out.println("Array of issues in response:");
+        //        System.out.println(issueAPI.getRequestSender().extractResponseByPath("issues"));
+        //System.out.println("Response text get(\"/apps\").asString():");
+        //System.out.println(given().when().get("/apps").asString());
+
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = null;
+        int numbIssue = 0;
+        try {
+            jsonObject = (JSONObject) parser.parse(strRespBody);
+
+            JSONArray issuesArr = (JSONArray) jsonObject.get("issues");
+            for (Object elArr : issuesArr) {
+                //System.out.println(elArr.toString());
+                jsonObject = (JSONObject) parser.parse(elArr.toString());
+                keyIssue = (String) jsonObject.get("key");
+                numbIssue++;
+                System.out.println("key Issue " + numbIssue + " = " + keyIssue);
+
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // assertTrue(responseСreate.getBody().jsonPath().get("key").toString().contains("QAAUT-"));
+        // assertTrue(responseСreate.getBody().jsonPath().get("self").toString().contains("http://soft.it-hillel.com.ua:8080"));
+
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
+    }
+
+    public List<String> getIssuesKeys_forSubstringSummary(String substringSummary) {
+        // получение списка ключей issue фильтрацией через строку запроса "jql:id = " + issueId
+        List<String> issuesForSubstrSummary = new ArrayList<String>();
+        //String substringSummary = "rest_test";
+        //String testQuery = "summary ~ \"\\\\[rest_test\\\\]\" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key ASC";
+        //String testQuery = "summary ~ \"\\\\[rest_test\\\\]\" AND project = QAAutomation2 ORDER BY key ASC";
+        //String testQuery = "key = QAAUT-1228 AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key DESC";
+        //String testQuery = "key = QAAUT-1228 AND project = QAAutomation2 ORDER BY key ASC";
+        //key = QAAUT-1017 AND project = QAAutomation2  ORDER BY key DESC   - поиск задачи по ключу issue QAAUT-1017
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key ASC
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY updated DESC - поиск всех задач в которых summary включает подстроку rest_test
+        String testQuery = "summary ~ \"\\\\[" + substringSummary + "\\\\]\" AND project = QAAutomation2 ORDER BY key DESC";
+        String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter_onQueryText(testQuery);
+        //String body_searchIssue = jiraJSONFixture.generateJSONForSearchFilter(keyIssue);
+        issueAPI.search(body_searchIssue);
+        String strRespBody = issueAPI.getRequestSender().response.getBody().asString();
+        System.out.println("Response total results count: " + issueAPI.getRequestSender().extractResponseByPath("total"));
+        System.out.println("Response text response.getBody():");
+        System.out.println(strRespBody);
+        System.out.println("Response text issueAPI.getRequestSender().extractTextResponseAsString():");
+        System.out.println(issueAPI.getRequestSender().extractTextResponseAsString());
+        //        System.out.println("Array of issues in response:");
+        //        System.out.println(issueAPI.getRequestSender().extractResponseByPath("issues"));
+        //System.out.println("Response text get(\"/apps\").asString():");
+        //System.out.println(given().when().get("/apps").asString());
+
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = null;
+        int numbIssue = 0;
+        try {
+            jsonObject = (JSONObject) parser.parse(strRespBody);
+
+            JSONArray issuesArr = (JSONArray) jsonObject.get("issues");
+            for (Object elArr : issuesArr) {
+                //System.out.println(elArr.toString());
+                jsonObject = (JSONObject) parser.parse(elArr.toString());
+                keyIssue = (String) jsonObject.get("key");
+                issuesForSubstrSummary.add(keyIssue);
+                numbIssue++;
+                System.out.println("key Issue " + numbIssue + " = " + keyIssue);
+
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(issueAPI.getRequestSender().response.statusCode(), 200);
+        assertTrue(issueAPI.getRequestSender().response.contentType().contains(ContentType.JSON.toString()));
+
+        return issuesForSubstrSummary;
+    }
+
 
     @Test(groups = {"Comment"}, dependsOnMethods = {"login"})
     public void addComment_statusCode201() {

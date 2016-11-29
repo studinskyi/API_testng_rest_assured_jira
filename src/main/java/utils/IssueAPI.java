@@ -41,7 +41,8 @@ public class IssueAPI {
     public void search(String body) {
         requestSender
                 .createRequest(body)
-                .get(ApiUrls.SEARCH.getUri());
+                .post(ApiUrls.SEARCH.getUri());
+                //.get(ApiUrls.SEARCH.getUri());
     }
 
     public void addComment(String body, String issueIdOrKey) {

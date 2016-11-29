@@ -64,6 +64,28 @@ public class JiraJSONFixture {
         return credentials.toJSONString();
     }
 
+    public String generateJSONForSearchFilter_onQueryText(String textQuery) {
+        JSONObject credentials = new JSONObject();
+        JSONArray fields = new JSONArray();
+        fields.add("summary");
+        fields.add("key");
+
+        //credentials.put("jql", "id = " + issueId);
+        credentials.put("jql", textQuery);
+        //credentials.put("jql", "key = " + issueKey);
+        credentials.put("startAt", "0");
+        credentials.put("maxResults", "200");
+        credentials.put("fields", fields);
+
+        //key = QAAUT-1017 AND project = QAAutomation2  ORDER BY key DESC   - поиск задачи по ключу issue QAAUT-1017
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY key ASC
+        //summary ~ "\\[rest_test\\]" AND project = QAAutomation2 AND assignee = currentuser() ORDER BY updated DESC - поиск всех задач в которых summary включает подстроку rest_test
+        //{"jql":"project = QAAUT","maxResults":"15","startAt":"0"}
+
+        System.out.println("fixture for Search issue: " + credentials.toString());
+        return credentials.toJSONString();
+    }
+
     public String generateJSONForAddComment() {
         JSONObject addCommentJSON = new JSONObject();
         addCommentJSON.put("body", "This is a comment added for testing " + getCurrenDateTimeString());
