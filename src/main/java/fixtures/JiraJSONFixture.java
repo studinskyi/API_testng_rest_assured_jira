@@ -25,7 +25,7 @@ public class JiraJSONFixture {
         JSONObject issue = new JSONObject();
 
         JSONObject fields = new JSONObject();
-        fields.put("summary", "api_rest_test_lr10 " + getCurrenDateTimeString());
+        fields.put("summary", "api_rest_test_lr10 " + getCurrentDateTimeString());
         JSONObject project = new JSONObject();
 
         JSONObject issuetype = new JSONObject();
@@ -88,11 +88,11 @@ public class JiraJSONFixture {
 
     public String generateJSONForAddComment() {
         JSONObject addCommentJSON = new JSONObject();
-        addCommentJSON.put("body", "This is a comment added for testing " + getCurrenDateTimeString());
+        addCommentJSON.put("body", "This is a comment added for testing " + getCurrentDateTimeString());
         return addCommentJSON.toJSONString();
     }
 
-    public String getCurrenDateTimeString() {
+    public String getCurrentDateTimeString() {
         // для возможности последующего просмотра командой history
         Date d = new Date();
         SimpleDateFormat formatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
